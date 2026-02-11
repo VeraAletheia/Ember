@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { apiTokens } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { ApiTokenManager } from "@/components/api-token-manager";
+import { DataExportButton } from "@/components/data-export-button";
 
 export default async function SettingsPage() {
   const { userId: clerkId } = await auth();
@@ -71,6 +72,19 @@ export default async function SettingsPage() {
           </p>
           <div className="mt-4">
             <ApiTokenManager initialTokens={tokens} />
+          </div>
+        </section>
+
+        {/* Data Export */}
+        <section>
+          <h2 className="font-display text-xl font-semibold text-ember-text">
+            Data
+          </h2>
+          <p className="mt-1 text-sm text-ember-text-muted">
+            Export all your memories, profiles, and captures as JSON.
+          </p>
+          <div className="mt-4">
+            <DataExportButton />
           </div>
         </section>
 

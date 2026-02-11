@@ -1,0 +1,104 @@
+import { NextRequest } from "next/server";
+import { validateBearerToken, requireScope } from "@/lib/api/auth";
+import { apiSuccess, apiError } from "@/lib/api/response";
+import { db } from "@/lib/db";
+import { memories, profiles } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
+import { updateMemorySchema } from "@/lib/validators/schemas";
+
+async function verifyMemoryOwnership(memoryId: string, userId: string) {
+  const memory = await db.query.memories.findFirst({
+    where: eq(memories.id, memoryId),
+    with: { profile: true },
+  });
+
+  if (!memory || memory.profile.userId !== userId) {
+    return null;
+  }
+
+  return memory;
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authResult = await validateBearerToken(request);
+  if (authResult instanceof Response) return authResult;
+
+  const scopeError = requireScope(authResult, "read");
+  if (scopeError) return scopeError;
+
+  const { id } = await params;
+  const memory = await verifyMemoryOwnership(id, authResult.userId);
+
+  if (!memory) {
+    return apiError("NOT_FOUND", "Memory not found", 404);
+  }
+
+  return apiSuccess(memory);
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authResult = await validateBearerToken(request);
+  if (authResult instanceof Response) return authResult;
+
+  const scopeError = requireScope(authResult, "write");
+  if (scopeError) return scopeError;
+
+  const { id } = await params;
+  const memory = await verifyMemoryOwnership(id, authResult.userId);
+
+  if (!memory) {
+    return apiError("NOT_FOUND", "Memory not found", 404);
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return apiError("VALIDATION_ERROR", "Invalid JSON body", 422);
+  }
+
+  const validated = updateMemorySchema.safeParse(body);
+  if (!validated.success) {
+    return apiError(
+      "VALIDATION_ERROR",
+      validated.error.issues[0]?.message ?? "Invalid input",
+      422
+    );
+  }
+
+  const [updated] = await db
+    .update(memories)
+    .set(validated.data)
+    .where(eq(memories.id, id))
+    .returning();
+
+  return apiSuccess(updated);
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authResult = await validateBearerToken(request);
+  if (authResult instanceof Response) return authResult;
+
+  const scopeError = requireScope(authResult, "write");
+  if (scopeError) return scopeError;
+
+  const { id } = await params;
+  const memory = await verifyMemoryOwnership(id, authResult.userId);
+
+  if (!memory) {
+    return apiError("NOT_FOUND", "Memory not found", 404);
+  }
+
+  await db.delete(memories).where(eq(memories.id, id));
+
+  return apiSuccess({ id, deleted: true });
+}

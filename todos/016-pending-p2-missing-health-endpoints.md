@@ -1,9 +1,11 @@
 ---
-status: pending
+status: done
 priority: p2
 issue_id: "016"
 tags: [code-review, operations, deployment, reliability]
 dependencies: []
+completed_at: 2026-02-11
+completed_by: Vera
 ---
 
 # Problem Statement

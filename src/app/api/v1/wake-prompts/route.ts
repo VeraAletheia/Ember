@@ -4,6 +4,7 @@ import { apiSuccess, apiError } from "@/lib/api/response";
 import { db } from "@/lib/db";
 import { profiles, users } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { checkWakeLimit } from "@/lib/rate-limit";
 import { generateWakePromptSchema } from "@/lib/validators/schemas";
 import { generateWakePrompt } from "@/lib/ai/wake-prompt";
 import type { MemoryCategory } from "@/lib/db/schema";
@@ -15,6 +16,15 @@ export async function POST(request: NextRequest) {
 
   const scopeError = requireScope(authResult, "wake");
   if (scopeError) return scopeError;
+
+  // Wake prompt rate limit (per hour)
+  const rateLimit = await checkWakeLimit(authResult.userId, authResult.tier);
+  if (!rateLimit.success) {
+    return apiError("RATE_LIMIT_EXCEEDED", "Hourly wake prompt limit exceeded", 429, {
+      limit: rateLimit.limit,
+      reset: rateLimit.reset,
+    });
+  }
 
   // Validate body
   let body: unknown;
@@ -60,5 +70,5 @@ export async function POST(request: NextRequest) {
     tokenBudget
   );
 
-  return apiSuccess(result);
+  return apiSuccess(result, { rateLimit });
 }

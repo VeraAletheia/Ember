@@ -2,6 +2,8 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { Brain, ClipboardPaste, Flame, Settings } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 const navItems = [
   { href: "/memories", label: "Memories", icon: Brain },
   { href: "/capture", label: "Capture", icon: ClipboardPaste },

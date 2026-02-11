@@ -4,6 +4,7 @@ import { apiSuccess, apiError } from "@/lib/api/response";
 import { db } from "@/lib/db";
 import { memories, profiles } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { checkApiLimit } from "@/lib/rate-limit";
 import { updateMemorySchema } from "@/lib/validators/schemas";
 
 async function verifyMemoryOwnership(memoryId: string, userId: string) {
@@ -19,6 +20,20 @@ async function verifyMemoryOwnership(memoryId: string, userId: string) {
   return memory;
 }
 
+async function checkRate(authResult: { userId: string; tier: import("@/lib/db/schema").UserTier }) {
+  const rateLimit = await checkApiLimit(authResult.userId, authResult.tier);
+  if (!rateLimit.success) {
+    return {
+      error: apiError("RATE_LIMIT_EXCEEDED", "API rate limit exceeded", 429, {
+        limit: rateLimit.limit,
+        reset: rateLimit.reset,
+      }),
+      rateLimit,
+    };
+  }
+  return { error: null, rateLimit };
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -29,6 +44,9 @@ export async function GET(
   const scopeError = requireScope(authResult, "read");
   if (scopeError) return scopeError;
 
+  const { error: rateLimitError, rateLimit } = await checkRate(authResult);
+  if (rateLimitError) return rateLimitError;
+
   const { id } = await params;
   const memory = await verifyMemoryOwnership(id, authResult.userId);
 
@@ -36,7 +54,7 @@ export async function GET(
     return apiError("NOT_FOUND", "Memory not found", 404);
   }
 
-  return apiSuccess(memory);
+  return apiSuccess(memory, { rateLimit });
 }
 
 export async function PATCH(
@@ -48,6 +66,9 @@ export async function PATCH(
 
   const scopeError = requireScope(authResult, "write");
   if (scopeError) return scopeError;
+
+  const { error: rateLimitError, rateLimit } = await checkRate(authResult);
+  if (rateLimitError) return rateLimitError;
 
   const { id } = await params;
   const memory = await verifyMemoryOwnership(id, authResult.userId);
@@ -78,7 +99,7 @@ export async function PATCH(
     .where(eq(memories.id, id))
     .returning();
 
-  return apiSuccess(updated);
+  return apiSuccess(updated, { rateLimit });
 }
 
 export async function DELETE(
@@ -91,6 +112,9 @@ export async function DELETE(
   const scopeError = requireScope(authResult, "write");
   if (scopeError) return scopeError;
 
+  const { error: rateLimitError, rateLimit } = await checkRate(authResult);
+  if (rateLimitError) return rateLimitError;
+
   const { id } = await params;
   const memory = await verifyMemoryOwnership(id, authResult.userId);
 
@@ -100,5 +124,5 @@ export async function DELETE(
 
   await db.delete(memories).where(eq(memories.id, id));
 
-  return apiSuccess({ id, deleted: true });
+  return apiSuccess({ id, deleted: true }, { rateLimit });
 }

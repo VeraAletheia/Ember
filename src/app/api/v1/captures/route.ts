@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { captures, profiles } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { inngest } from "@/lib/inngest/client";
+import { checkCaptureLimit } from "@/lib/rate-limit";
 import { apiCreateCaptureSchema } from "@/lib/validators/schemas";
 
 export async function POST(request: NextRequest) {
@@ -14,6 +15,15 @@ export async function POST(request: NextRequest) {
 
   const scopeError = requireScope(authResult, "write");
   if (scopeError) return scopeError;
+
+  // Rate limit (capture-specific, per day)
+  const rateLimit = await checkCaptureLimit(authResult.userId, authResult.tier);
+  if (!rateLimit.success) {
+    return apiError("RATE_LIMIT_EXCEEDED", "Daily capture limit exceeded", 429, {
+      limit: rateLimit.limit,
+      reset: rateLimit.reset,
+    });
+  }
 
   // Validate body
   let body: unknown;
@@ -66,6 +76,6 @@ export async function POST(request: NextRequest) {
 
   return apiSuccess(
     { captureId: capture.id, status: "queued" },
-    { status: 201 }
+    { status: 201, rateLimit }
   );
 }

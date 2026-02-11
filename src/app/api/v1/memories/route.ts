@@ -4,6 +4,7 @@ import { apiPaginated, apiError } from "@/lib/api/response";
 import { db } from "@/lib/db";
 import { memories, profiles } from "@/lib/db/schema";
 import { eq, and, lt, desc, inArray } from "drizzle-orm";
+import { checkApiLimit } from "@/lib/rate-limit";
 import { memoriesQuerySchema } from "@/lib/validators/schemas";
 
 export async function GET(request: NextRequest) {
@@ -13,6 +14,15 @@ export async function GET(request: NextRequest) {
 
   const scopeError = requireScope(authResult, "read");
   if (scopeError) return scopeError;
+
+  // API rate limit (per minute)
+  const rateLimit = await checkApiLimit(authResult.userId, authResult.tier);
+  if (!rateLimit.success) {
+    return apiError("RATE_LIMIT_EXCEEDED", "API rate limit exceeded", 429, {
+      limit: rateLimit.limit,
+      reset: rateLimit.reset,
+    });
+  }
 
   // Parse query params
   const { searchParams } = new URL(request.url);
@@ -71,5 +81,6 @@ export async function GET(request: NextRequest) {
   return apiPaginated(data, {
     cursor: hasMore ? nextCursor : null,
     hasMore,
+    rateLimit,
   });
 }

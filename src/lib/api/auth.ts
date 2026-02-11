@@ -1,13 +1,15 @@
 import { db } from "@/lib/db";
 import { apiTokens, users } from "@/lib/db/schema";
+import type { UserTier } from "@/lib/db/schema";
 import { eq, and, isNull, gt } from "drizzle-orm";
 import { apiError } from "./response";
 import crypto from "crypto";
 
-interface AuthResult {
+export interface AuthResult {
   userId: string;
   tokenId: string;
   scopes: string[];
+  tier: UserTier;
 }
 
 /**
@@ -59,6 +61,7 @@ export async function validateBearerToken(
     userId: record.userId,
     tokenId: record.id,
     scopes: record.scopes,
+    tier: record.user.tier,
   };
 }
 

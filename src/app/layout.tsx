@@ -9,11 +9,12 @@ export const metadata: Metadata = {
     "Capture conversations, extract memories, and give any AI platform persistent context about you.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function Providers({ children }: { children: React.ReactNode }) {
+  // Allow builds without Clerk env vars (static generation)
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return <>{children}</>;
+  }
+
   return (
     <ClerkProvider
       appearance={{
@@ -26,6 +27,18 @@ export default function RootLayout({
         },
       }}
     >
+      {children}
+    </ClerkProvider>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Providers>
       <html lang="en" className="dark">
         <head>
           <link
@@ -37,6 +50,6 @@ export default function RootLayout({
           {children}
         </body>
       </html>
-    </ClerkProvider>
+    </Providers>
   );
 }

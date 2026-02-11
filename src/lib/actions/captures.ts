@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { users, profiles, captures } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { inngest } from "@/lib/inngest/client";
+import { checkCaptureLimit } from "@/lib/rate-limit";
 import {
   createCaptureSchema,
   type ActionState,
@@ -32,6 +33,15 @@ export async function createCaptureAction(
 
     // Ensure user exists (just-in-time creation fallback)
     const user = await ensureUser(clerkId);
+
+    // Check capture rate limit
+    const rateLimit = await checkCaptureLimit(user.id, user.tier);
+    if (!rateLimit.success) {
+      return {
+        status: "error",
+        error: `Daily capture limit reached (${rateLimit.limit}). Resets at ${new Date(rateLimit.reset).toLocaleTimeString()}.`,
+      };
+    }
 
     // Verify profile belongs to user
     const profile = await db.query.profiles.findFirst({

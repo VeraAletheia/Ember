@@ -4,6 +4,7 @@ import { apiSuccess, apiError } from "@/lib/api/response";
 import { db } from "@/lib/db";
 import { captures, memories, profiles } from "@/lib/db/schema";
 import { eq, and, count } from "drizzle-orm";
+import { checkApiLimit } from "@/lib/rate-limit";
 
 export async function GET(
   request: NextRequest,
@@ -14,6 +15,15 @@ export async function GET(
 
   const scopeError = requireScope(authResult, "read");
   if (scopeError) return scopeError;
+
+  // API rate limit
+  const rateLimit = await checkApiLimit(authResult.userId, authResult.tier);
+  if (!rateLimit.success) {
+    return apiError("RATE_LIMIT_EXCEEDED", "API rate limit exceeded", 429, {
+      limit: rateLimit.limit,
+      reset: rateLimit.reset,
+    });
+  }
 
   const { id } = await params;
 
@@ -41,5 +51,5 @@ export async function GET(
     memoryCount,
     errorMessage: capture.errorMessage,
     createdAt: capture.createdAt,
-  });
+  }, { rateLimit });
 }

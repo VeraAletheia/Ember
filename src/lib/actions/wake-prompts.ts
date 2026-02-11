@@ -6,6 +6,7 @@ import { profiles } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ensureUser } from "./profiles";
 import { generateWakePrompt } from "@/lib/ai/wake-prompt";
+import { checkWakeLimit } from "@/lib/rate-limit";
 import {
   generateWakePromptSchema,
   type ActionState,
@@ -39,6 +40,15 @@ export async function generateWakePromptAction(
     const { profileId, categories, budget } = validated.data;
 
     const user = await ensureUser(clerkId);
+
+    // Check wake prompt rate limit
+    const rateLimit = await checkWakeLimit(user.id, user.tier);
+    if (!rateLimit.success) {
+      return {
+        status: "error",
+        error: `Hourly wake prompt limit reached (${rateLimit.limit}). Resets at ${new Date(rateLimit.reset).toLocaleTimeString()}.`,
+      };
+    }
 
     // Verify profile belongs to user
     const profile = await db.query.profiles.findFirst({

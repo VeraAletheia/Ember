@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Brain, ClipboardPaste, Flame, Settings } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import { NavLink } from "@/components/nav-link";
 
 const navItems = [
@@ -41,10 +42,14 @@ export default function DashboardLayout({
           ))}
         </nav>
         <div className="border-t border-ember-border-subtle p-4">
-          <div className="flex items-center gap-2 text-sm text-ember-text-muted">
-            <div className="h-8 w-8 rounded-full bg-ember-amber/20 flex items-center justify-center text-ember-amber font-bold">V</div>
-            <span>Dev Mode</span>
-          </div>
+          <UserButton
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                avatarBox: "h-8 w-8",
+              },
+            }}
+          />
         </div>
       </aside>
 

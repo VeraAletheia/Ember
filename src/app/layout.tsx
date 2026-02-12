@@ -9,47 +9,34 @@ export const metadata: Metadata = {
     "Capture conversations, extract memories, and give any AI platform persistent context about you.",
 };
 
-function Providers({ children }: { children: React.ReactNode }) {
-  // Allow builds without Clerk env vars (static generation)
-  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-    return <>{children}</>;
-  }
-
-  return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-        variables: {
-          colorPrimary: "#f59e0b",
-          colorBackground: "#18181b",
-          colorInputBackground: "#1f1f23",
-          colorInputText: "#fafafa",
-        },
-      }}
-    >
-      {children}
-    </ClerkProvider>
-  );
-}
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <Providers>
-      <html lang="en" className="dark">
-        <head>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-            rel="stylesheet"
-          />
-        </head>
-        <body className="min-h-screen bg-ember-bg text-ember-text antialiased">
+    <html lang="en" className="dark">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen bg-ember-bg text-ember-text antialiased">
+        <ClerkProvider
+          appearance={{
+            baseTheme: dark,
+            variables: {
+              colorPrimary: "#f59e0b",
+              colorBackground: "#18181b",
+              colorInputBackground: "#1f1f23",
+              colorInputText: "#fafafa",
+            },
+          }}
+        >
           {children}
-        </body>
-      </html>
-    </Providers>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

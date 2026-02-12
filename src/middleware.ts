@@ -1,12 +1,21 @@
-// Auth bypassed for MVP testing — re-enable Clerk when ready for users
-// import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/webhooks(.*)",
+  "/api/health",
+  "/api/ready",
+  "/api/inngest(.*)",
+  "/api/v1(.*)", // API routes use token auth, not session auth
+]);
 
-export default function middleware(_request: NextRequest) {
-  return NextResponse.next();
-}
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
 
 export const config = {
   matcher: [

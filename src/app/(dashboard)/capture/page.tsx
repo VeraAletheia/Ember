@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { CaptureForm } from "@/components/capture-form";
 import { ScreenshotCaptureForm } from "@/components/screenshot-capture-form";
@@ -6,7 +6,7 @@ import { CaptureModeTabs } from "@/components/capture-mode-tabs";
 import { getDefaultProfileAction } from "@/lib/actions/profiles";
 
 export default async function CapturePage() {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   if (!userId) redirect("/sign-in");
 
   const profileResult = await getDefaultProfileAction();

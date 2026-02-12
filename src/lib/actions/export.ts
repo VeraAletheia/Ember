@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users, profiles, captures, memories } from "@/lib/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
@@ -50,7 +50,7 @@ export async function exportDataAction(): Promise<
   ActionState<ExportData>
 > {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }

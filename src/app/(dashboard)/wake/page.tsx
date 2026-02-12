@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { memories, profiles, users } from "@/lib/db/schema";
@@ -8,7 +8,7 @@ import { WakePromptGenerator } from "@/components/wake-prompt-generator";
 import type { MemoryCategory } from "@/lib/db/schema";
 
 export default async function WakePage() {
-  const { userId: clerkId } = await auth();
+  const clerkId = await getAuthUserId();
   if (!clerkId) redirect("/sign-in");
 
   const user = await ensureUser(clerkId);

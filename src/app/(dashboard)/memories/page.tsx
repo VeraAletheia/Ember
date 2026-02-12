@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { profiles, memories, captures } from "@/lib/db/schema";
@@ -8,7 +8,7 @@ import { MemoryBrowser } from "@/components/memory-browser";
 import { MemoryStats } from "@/components/memory-stats";
 
 export default async function MemoriesPage() {
-  const { userId: clerkId } = await auth();
+  const clerkId = await getAuthUserId();
   if (!clerkId) redirect("/sign-in");
 
   const user = await ensureUser(clerkId);

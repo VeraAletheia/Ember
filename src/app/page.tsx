@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import {
   Brain,
@@ -17,7 +17,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (userId) {
     redirect("/memories");

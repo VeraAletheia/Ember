@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { memories, profiles } from "@/lib/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
@@ -12,7 +12,7 @@ export async function updateMemoryAction(
   input: unknown
 ): Promise<ActionState<{ id: string }>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }
@@ -57,7 +57,7 @@ export async function deleteMemoryAction(
   memoryId: string
 ): Promise<ActionState<{ id: string }>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }
@@ -95,7 +95,7 @@ export async function restoreMemoryAction(
   memoryId: string
 ): Promise<ActionState<{ id: string }>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }

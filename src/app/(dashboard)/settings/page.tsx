@@ -1,6 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { UserProfile } from "@clerk/nextjs";
 import { ensureUser } from "@/lib/actions/profiles";
 import { db } from "@/lib/db";
 import { apiTokens } from "@/lib/db/schema";
@@ -10,7 +9,7 @@ import { DataExportButton } from "@/components/data-export-button";
 import { TokenBudgetSlider } from "@/components/token-budget-slider";
 
 export default async function SettingsPage() {
-  const { userId: clerkId } = await auth();
+  const clerkId = await getAuthUserId();
   if (!clerkId) redirect("/sign-in");
 
   const user = await ensureUser(clerkId);
@@ -96,24 +95,6 @@ export default async function SettingsPage() {
           </p>
           <div className="mt-4">
             <DataExportButton />
-          </div>
-        </section>
-
-        {/* Clerk profile management */}
-        <section>
-          <h2 className="font-display text-xl font-semibold text-ember-text">
-            Profile
-          </h2>
-          <div className="mt-4">
-            <UserProfile
-              appearance={{
-                elements: {
-                  rootBox: "w-full",
-                  cardBox:
-                    "shadow-none border border-ember-border-subtle rounded-2xl",
-                },
-              }}
-            />
           </div>
         </section>
       </div>

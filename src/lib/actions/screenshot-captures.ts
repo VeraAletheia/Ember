@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { profiles, captures } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -20,7 +20,7 @@ export async function createScreenshotCaptureAction(
   input: unknown
 ): Promise<ActionState<{ captureId: string }>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }

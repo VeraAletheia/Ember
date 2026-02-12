@@ -142,7 +142,7 @@ export async function extractMemoriesFromImage(
           ...imageContent,
           {
             type: "text" as const,
-            content: SCREENSHOT_EXTRACTION_PROMPT,
+            text: SCREENSHOT_EXTRACTION_PROMPT,
           },
         ],
       },

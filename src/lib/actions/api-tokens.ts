@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { apiTokens } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -12,7 +12,7 @@ export async function createApiTokenAction(
   input: unknown
 ): Promise<ActionState<{ token: string; id: string; name: string }>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }
@@ -61,7 +61,7 @@ export async function listApiTokensAction(): Promise<
   >
 > {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }
@@ -91,7 +91,7 @@ export async function revokeApiTokenAction(
   tokenId: string
 ): Promise<ActionState<{ id: string }>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }

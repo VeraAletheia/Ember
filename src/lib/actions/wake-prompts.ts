@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -31,7 +31,7 @@ export async function generateWakePromptAction(
   input: unknown
 ): Promise<ActionState<WakePromptResult>> {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getAuthUserId();
     if (!clerkId) {
       return { status: "error", error: "Not authenticated" };
     }

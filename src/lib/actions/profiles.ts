@@ -1,6 +1,6 @@
 "use server";
 
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { getAuthUserId, getAuthUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users, profiles, type User, type Profile } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -17,13 +17,9 @@ export async function ensureUser(clerkId: string): Promise<User> {
 
   if (existing) return existing;
 
-  // Webhook hasn't fired yet — create user inline
-  const clerkUser = await currentUser();
-  const email = clerkUser?.emailAddresses[0]?.emailAddress;
-
-  if (!email) {
-    throw new Error("No email found for user");
-  }
+  // Get user info from auth wrapper
+  const { user: authUser } = await getAuthUser();
+  const email = authUser?.emailAddresses?.[0]?.emailAddress ?? "dev@ember.app";
 
   const [newUser] = await db
     .insert(users)
@@ -47,10 +43,7 @@ export async function getProfilesAction(): Promise<
   ActionState<Profile[]>
 > {
   try {
-    const { userId: clerkId } = await auth();
-    if (!clerkId) {
-      return { status: "error", error: "Not authenticated" };
-    }
+    const clerkId = await getAuthUserId();
 
     const user = await ensureUser(clerkId);
 
@@ -70,10 +63,7 @@ export async function updateTokenBudgetAction(
   budget: number
 ): Promise<ActionState<{ tokenBudget: number }>> {
   try {
-    const { userId: clerkId } = await auth();
-    if (!clerkId) {
-      return { status: "error", error: "Not authenticated" };
-    }
+    const clerkId = await getAuthUserId();
 
     if (budget < 2000 || budget > 32000) {
       return { status: "error", error: "Budget must be between 2,000 and 32,000" };
@@ -97,10 +87,7 @@ export async function getDefaultProfileAction(): Promise<
   ActionState<Profile>
 > {
   try {
-    const { userId: clerkId } = await auth();
-    if (!clerkId) {
-      return { status: "error", error: "Not authenticated" };
-    }
+    const clerkId = await getAuthUserId();
 
     const user = await ensureUser(clerkId);
 

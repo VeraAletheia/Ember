@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/auth";
 import { apiSuccess, apiError } from "@/lib/api/response";
 import { db } from "@/lib/db";
 import { apiTokens, users } from "@/lib/db/schema";
@@ -8,7 +8,7 @@ import { generateApiToken } from "@/lib/api/auth";
 import { createApiTokenSchema } from "@/lib/validators/schemas";
 
 export async function GET(request: NextRequest) {
-  const { userId: clerkId } = await auth();
+  const clerkId = await getAuthUserId();
   if (!clerkId) {
     return apiError("UNAUTHORIZED", "Not authenticated", 401);
   }
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId: clerkId } = await auth();
+  const clerkId = await getAuthUserId();
   if (!clerkId) {
     return apiError("UNAUTHORIZED", "Not authenticated", 401);
   }

@@ -1,9 +1,8 @@
+"use client";
+
 import Link from "next/link";
-// import { UserButton } from "@clerk/nextjs";
 import { Brain, ClipboardPaste, Flame, Settings } from "lucide-react";
 import { NavLink } from "@/components/nav-link";
-
-export const dynamic = "force-dynamic";
 
 const navItems = [
   { href: "/memories", label: "Memories", icon: Brain },

@@ -17,10 +17,12 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
-  const userId = await getAuthUserId();
-
-  if (userId) {
-    redirect("/memories");
+  // Only redirect when real auth is configured (Clerk)
+  if (process.env.CLERK_SECRET_KEY) {
+    const userId = await getAuthUserId();
+    if (userId) {
+      redirect("/memories");
+    }
   }
 
   return (

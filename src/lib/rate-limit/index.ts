@@ -2,6 +2,10 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import type { UserTier } from "@/lib/db/schema";
 
+const UPSTASH_AVAILABLE =
+  !!process.env.UPSTASH_REDIS_REST_URL &&
+  !!process.env.UPSTASH_REDIS_REST_TOKEN;
+
 function createRedis() {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -19,6 +23,14 @@ function getRedis() {
   if (!_redis) _redis = createRedis();
   return _redis;
 }
+
+// Passthrough result when Upstash is not configured (dev mode)
+const PASSTHROUGH_RESULT: RateLimitResult = {
+  success: true,
+  limit: 999,
+  remaining: 999,
+  reset: Date.now() + 86400000,
+};
 
 // ─── Capture Rate Limiters (per day) ─────────────────────
 
@@ -111,6 +123,7 @@ export async function checkCaptureLimit(
   userId: string,
   tier: UserTier
 ): Promise<RateLimitResult> {
+  if (!UPSTASH_AVAILABLE) return PASSTHROUGH_RESULT;
   const limiter = captureLimiters[tier]();
   const result = await limiter.limit(userId);
   return {
@@ -125,6 +138,7 @@ export async function checkApiLimit(
   userId: string,
   tier: UserTier
 ): Promise<RateLimitResult> {
+  if (!UPSTASH_AVAILABLE) return PASSTHROUGH_RESULT;
   const limiter = apiLimiters[tier]();
   const result = await limiter.limit(userId);
   return {
@@ -139,6 +153,7 @@ export async function checkWakeLimit(
   userId: string,
   tier: UserTier
 ): Promise<RateLimitResult> {
+  if (!UPSTASH_AVAILABLE) return PASSTHROUGH_RESULT;
   const limiter = wakeLimiters[tier]();
   const result = await limiter.limit(userId);
   return {

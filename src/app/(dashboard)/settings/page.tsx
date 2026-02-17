@@ -52,7 +52,7 @@ export default async function SettingsPage() {
                 <span className="capitalize text-ember-amber">{user.tier}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ember-text-secondary">Token Budget</span>
+                <span className="text-ember-text-secondary">Memory Size</span>
                 <span className="text-ember-text">
                   {user.tokenBudget.toLocaleString()} tokens
                 </span>
@@ -61,10 +61,10 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Token Budget */}
+        {/* Memory Size */}
         <section>
           <h2 className="font-display text-xl font-semibold text-ember-text">
-            Token Budget
+            Memory Size
           </h2>
           <div className="mt-4">
             <TokenBudgetSlider initialBudget={user.tokenBudget} />

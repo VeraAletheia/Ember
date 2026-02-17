@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /memories
+Disallow: /capture
+Disallow: /wake
+Disallow: /settings
+
+Sitemap: https://ember-one-delta.vercel.app/sitemap.xml

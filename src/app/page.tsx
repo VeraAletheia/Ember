@@ -54,9 +54,9 @@ export default async function LandingPage() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-ember-text-secondary sm:text-xl">
-            Every time you start a new conversation, your AI forgets everything.
-            Ember captures what matters — facts and feelings — and gives any
-            platform the context to truly know you.
+            Every new conversation, your AI forgets everything — who you are,
+            what you&apos;ve shared, why it mattered. Ember captures the warmth
+            before the fire goes out, so any AI can pick up where you left off.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -85,7 +85,7 @@ export default async function LandingPage() {
       <section className="border-t border-ember-border-subtle px-6 py-24">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center font-display text-3xl font-bold text-ember-text sm:text-4xl">
-            Three steps to persistent memory
+            Gather your Embers. Kindle any AI.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center text-ember-text-secondary">
             Works with ChatGPT, Claude, Gemini, Character.AI — any platform.
@@ -99,12 +99,12 @@ export default async function LandingPage() {
                 <ClipboardPaste className="h-6 w-6 text-ember-amber" />
               </div>
               <h3 className="mt-5 font-display text-xl font-semibold text-ember-text">
-                1. Capture
+                1. Gather
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-ember-text-secondary">
-                Paste a conversation or upload screenshots. We handle ChatGPT,
-                Claude, Gemini, and more. Mobile-friendly screenshot capture
-                means no more copy-paste gymnastics.
+                Don&apos;t let the fire burn out. Paste a conversation or snap a
+                screenshot — we handle ChatGPT, Claude, Gemini, and more.
+                Grab your embers before the conversation fades.
               </p>
             </div>
 
@@ -117,9 +117,9 @@ export default async function LandingPage() {
                 2. Extract
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-ember-text-secondary">
-                AI reads your conversation and extracts dual-dimension memories:
-                the facts <em>and</em> the feelings. Not just "born April 12th"
-                — but why that night mattered.
+                Watch your Embers form. AI reads your conversation and captures
+                both the facts <em>and</em> the feelings. Not just &ldquo;born
+                April 12th&rdquo; — but why that night mattered.
               </p>
             </div>
 
@@ -129,12 +129,12 @@ export default async function LandingPage() {
                 <Flame className="h-6 w-6 text-ember-amber" />
               </div>
               <h3 className="mt-5 font-display text-xl font-semibold text-ember-text">
-                3. Wake
+                3. Kindle
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-ember-text-secondary">
-                Generate a wake prompt — a compressed version of your memories
-                you paste into any AI. It picks up where you left off. No
-                more starting from scratch.
+                Carry your Embers into any new chat. One tap generates a
+                kindle prompt — paste it in and watch your AI pick up
+                where you left off. Like you never left.
               </p>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default async function LandingPage() {
       <section className="border-t border-ember-border-subtle px-6 py-24">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center font-display text-3xl font-bold text-ember-text sm:text-4xl">
-            Memory that works the way you do
+            Memory that burns the way you do
           </h2>
 
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -241,8 +241,8 @@ export default async function LandingPage() {
             Your AI is waiting to remember you.
           </h2>
           <p className="mt-4 text-lg text-ember-text-secondary">
-            Every conversation you lose is context your AI will never have.
-            Start capturing today.
+            Every conversation that fades is warmth your AI will never feel.
+            Start gathering your Embers today.
           </p>
           <Link
             href="/sign-up"

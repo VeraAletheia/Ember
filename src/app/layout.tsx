@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Ember — AI Memory Platform",
   description:
-    "Capture conversations, extract memories, and give any AI platform persistent context about you.",
+    "Stop re-introducing yourself to AI. Ember captures your conversations — facts and feelings — so any AI picks up where you left off. Works with ChatGPT, Claude, Gemini, and more.",
 };
 
 export default function RootLayout({

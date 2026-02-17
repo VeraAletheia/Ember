@@ -9,13 +9,13 @@ export default function NotFound() {
         404
       </h1>
       <p className="mt-3 text-lg text-ember-text-secondary">
-        This memory doesn&apos;t exist. Yet.
+        This ember has gone cold. Nothing here.
       </p>
       <Link
         href="/memories"
         className="mt-8 rounded-xl bg-ember-amber-600 px-6 py-3 font-semibold text-ember-bg shadow-ember-glow transition-all hover:bg-ember-amber hover:shadow-ember-glow-lg"
       >
-        Back to Memories
+        Back to your Embers
       </Link>
     </main>
   );

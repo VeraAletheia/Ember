@@ -65,10 +65,10 @@ export function MemoryBrowser({
   if (memories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ember-border py-16 text-center">
-        <p className="text-lg text-ember-text-muted">No memories yet.</p>
+        <p className="text-lg text-ember-text-muted">No embers yet.</p>
         <p className="mt-2 text-sm text-ember-text-muted">
           <a href="/capture" className="text-ember-amber hover:underline">
-            Capture your first conversation &rarr;
+            Gather your first embers &rarr;
           </a>
         </p>
       </div>
@@ -131,7 +131,7 @@ export function MemoryBrowser({
 
       {/* Stats footer */}
       <div className="mt-8 text-center text-xs text-ember-text-muted">
-        {memories.length} total memories across {Object.keys(counts).length - 1} categories
+        {memories.length} embers across {Object.keys(counts).length - 1} categories
       </div>
     </div>
   );

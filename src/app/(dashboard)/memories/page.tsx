@@ -4,8 +4,6 @@ import { db } from "@/lib/db";
 import { profiles, memories, captures } from "@/lib/db/schema";
 import { eq, and, desc, isNull, count as sqlCount } from "drizzle-orm";
 import { ensureUser } from "@/lib/actions/profiles";
-import { MemoryBrowser } from "@/components/memory-browser";
-import { MemoryStats } from "@/components/memory-stats";
 import { MemoriesPageClient } from "./memories-client";
 
 export default async function MemoriesPage() {
@@ -53,6 +51,8 @@ export default async function MemoriesPage() {
       totalCaptures={Number(captureCount[0]?.count ?? 0)}
       categoryCounts={categoryCounts}
       recentCaptureDate={recentCapture?.createdAt?.toISOString() ?? null}
+      profileId={profileId}
+      tokenBudget={user.tokenBudget}
     />
   );
 }

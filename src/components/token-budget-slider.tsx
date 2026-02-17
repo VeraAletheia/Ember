@@ -29,11 +29,11 @@ export function TokenBudgetSlider({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-medium text-ember-text">
-            Wake Prompt Token Budget
+            Kindle Prompt Size
           </h3>
           <p className="mt-1 text-xs text-ember-text-muted">
-            Maximum tokens for generated wake prompts. Higher = more context,
-            shorter conversations.
+            How much of your memory to share when kindling a chat. Higher = more
+            context, but uses more of the conversation space.
           </p>
         </div>
         <span className="font-mono text-lg font-semibold text-ember-amber">
@@ -65,7 +65,7 @@ export function TokenBudgetSlider({
           disabled={isPending}
           className="mt-4 rounded-lg bg-ember-amber-600 px-4 py-2 text-sm font-semibold text-ember-bg transition-colors hover:bg-ember-amber disabled:opacity-50"
         >
-          {isPending ? "Saving..." : saved ? "Saved!" : "Save Budget"}
+          {isPending ? "Saving..." : saved ? "Saved!" : "Save"}
         </button>
       )}
     </div>

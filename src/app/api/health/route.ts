@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sql } from "drizzle-orm";
-import Anthropic from "@anthropic-ai/sdk";
+import { flashModel } from "@/lib/ai/gemini-client";
 
 interface HealthCheck {
   status: "healthy" | "degraded" | "unhealthy";
@@ -16,16 +16,16 @@ interface HealthResponse {
   uptime: number;
   checks: {
     database: HealthCheck;
-    claude: HealthCheck;
+    ai: HealthCheck;
   };
 }
 
 const startTime = Date.now();
 
 export async function GET(): Promise<NextResponse<HealthResponse>> {
-  const checks = await Promise.allSettled([checkDatabase(), checkClaudeAPI()]);
+  const checks = await Promise.allSettled([checkDatabase(), checkAI()]);
 
-  const [dbCheck, claudeCheck] = checks;
+  const [dbCheck, aiCheck] = checks;
 
   const database =
     dbCheck.status === "fulfilled"
@@ -36,17 +36,16 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
           message: String(dbCheck.reason),
         };
 
-  const claude =
-    claudeCheck.status === "fulfilled"
-      ? claudeCheck.value
+  const ai =
+    aiCheck.status === "fulfilled"
+      ? aiCheck.value
       : {
           status: "unhealthy" as const,
           latencyMs: 0,
-          message: String(claudeCheck.reason),
+          message: String(aiCheck.reason),
         };
 
-  // Overall status: unhealthy if any critical check fails
-  const criticalChecks = [database, claude];
+  const criticalChecks = [database, ai];
   const overallStatus = criticalChecks.some((c) => c.status === "unhealthy")
     ? "unhealthy"
     : criticalChecks.some((c) => c.status === "degraded")
@@ -60,7 +59,7 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
     uptime: Math.floor((Date.now() - startTime) / 1000),
     checks: {
       database,
-      claude,
+      ai,
     },
   };
 
@@ -100,32 +99,36 @@ async function checkDatabase(): Promise<HealthCheck> {
   }
 }
 
-async function checkClaudeAPI(): Promise<HealthCheck> {
+async function checkAI(): Promise<HealthCheck> {
   const start = Date.now();
 
   try {
-    // Check if API key is configured
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.GOOGLE_AI_API_KEY) {
       return {
         status: "unhealthy",
         latencyMs: 0,
-        message: "ANTHROPIC_API_KEY not configured",
+        message: "GOOGLE_AI_API_KEY not configured",
       };
     }
 
-    // Minimal API call to verify key validity and connectivity
-    const anthropic = new Anthropic();
-    await anthropic.messages.countTokens({
-      model: "claude-sonnet-4-20250514",
-      messages: [{ role: "user", content: "health check" }],
-    });
+    // Minimal call to verify API key validity
+    const result = await flashModel.generateContent("Reply with: ok");
+    const text = result.response.text();
     const latencyMs = Date.now() - start;
+
+    if (!text) {
+      return {
+        status: "unhealthy",
+        latencyMs,
+        message: "Gemini returned empty response",
+      };
+    }
 
     if (latencyMs > 5000) {
       return {
         status: "degraded",
         latencyMs,
-        message: `Claude API responding but slow (${latencyMs}ms)`,
+        message: `Gemini API responding but slow (${latencyMs}ms)`,
       };
     }
 
@@ -135,7 +138,7 @@ async function checkClaudeAPI(): Promise<HealthCheck> {
       status: "unhealthy",
       latencyMs: Date.now() - start,
       message:
-        error instanceof Error ? error.message : "Claude API unreachable",
+        error instanceof Error ? error.message : "Gemini API unreachable",
     };
   }
 }

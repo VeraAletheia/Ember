@@ -16,6 +16,7 @@
     "@anthropic-ai/sdk": "latest",
     "@clerk/nextjs": "latest",
     "@clerk/themes": "^2.4.51",
+    "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "latest",
     "@upstash/ratelimit": "latest",
     "@upstash/redis": "latest",

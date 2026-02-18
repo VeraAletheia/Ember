@@ -1,4 +1,4 @@
-import { anthropic } from "./client";
+import { flashModel } from "./gemini-client";
 import {
   extractionResponse,
   type ExtractionResponse,
@@ -97,64 +97,60 @@ Respond ONLY with valid JSON matching this schema:
 export async function extractMemories(
   rawText: string
 ): Promise<ExtractionResponse> {
-  const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-5-20250929",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: `${EXTRACTION_PROMPT}\n\nConversation:\n${rawText}`,
-      },
-    ],
-  });
+  const result = await flashModel.generateContent(
+    `${EXTRACTION_PROMPT}\n\nConversation:\n${rawText}`
+  );
 
-  const textBlock = response.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Claude");
-  }
+  const text = result.response.text();
 
-  const parsed = extractionResponse.parse(JSON.parse(textBlock.text));
+  // Gemini sometimes wraps JSON in markdown code blocks
+  const cleaned = text
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  const parsed = extractionResponse.parse(JSON.parse(cleaned));
   return parsed;
 }
 
 /**
- * Extract memories from conversation screenshots using Claude Vision.
- * Accepts an array of image URLs (supports multiple screenshots of a long conversation).
+ * Extract memories from conversation screenshots using Gemini Vision.
+ * Accepts an array of image URLs.
  */
 export async function extractMemoriesFromImage(
   imageUrls: string[]
 ): Promise<ExtractionResponse> {
-  const imageContent = imageUrls.map((url) => ({
-    type: "image" as const,
-    source: {
-      type: "url" as const,
-      url,
-    },
-  }));
+  // Fetch images and convert to inline data for Gemini
+  const imageParts = await Promise.all(
+    imageUrls.map(async (url) => {
+      const response = await fetch(url);
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      const mimeType = response.headers.get("content-type") || "image/jpeg";
+      return {
+        inlineData: {
+          data: base64,
+          mimeType,
+        },
+      };
+    })
+  );
 
-  const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-5-20250929",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: [
-          ...imageContent,
-          {
-            type: "text" as const,
-            text: SCREENSHOT_EXTRACTION_PROMPT,
-          },
-        ],
-      },
-    ],
-  });
+  const result = await flashModel.generateContent([
+    ...imageParts,
+    { text: SCREENSHOT_EXTRACTION_PROMPT },
+  ]);
 
-  const textBlock = response.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Claude Vision");
-  }
+  const text = result.response.text();
 
-  const parsed = extractionResponse.parse(JSON.parse(textBlock.text));
+  const cleaned = text
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  const parsed = extractionResponse.parse(JSON.parse(cleaned));
   return parsed;
 }
 

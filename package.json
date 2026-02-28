@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
-    "@clerk/nextjs": "latest",
+    "@clerk/nextjs": "^6.12.0",
     "@clerk/themes": "^2.4.51",
     "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "latest",
@@ -24,7 +24,7 @@
     "inngest": "latest",
     "lucide-react": "latest",
     "motion": "latest",
-    "next": "latest",
+    "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "svix": "latest",
